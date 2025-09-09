@@ -1,4 +1,4 @@
-// import express from 'express';
+ import express from 'express';
 import dotenv from 'dotenv';
 import connectToMongoDB from './db/index.js';
 import userRouter from './routes/user.routes.js';
