@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import PostCard from '../components/PostCard';
 import { useDispatch } from 'react-redux';
+// If logoutStart is from a slice, ensure you import it where needed:
+// import { logoutStart } from '../redux/authSlice';
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
@@ -9,15 +11,26 @@ export default function Home() {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const res = await fetch('/api/v1/post/getPosts');
-      if (res.status === 401) {
-        dispatch(logoutStart())
+      try {
+        const API_BASE = import.meta.env.VITE_API_URL || '';
+        const res = await fetch(`${API_BASE}/api/v1/post/getPosts`, {
+          method: 'GET',
+          credentials: 'include' // keep this if you use cookies/auth; otherwise remove
+        });
+
+        if (res.status === 401) {
+          dispatch(logoutStart());
+          return;
+        }
+
+        const data = await res.json();
+        setPosts(data.posts);
+      } catch (err) {
+        console.error('Failed to fetch posts', err);
       }
-      const data = await res.json();
-      setPosts(data.posts);
     };
     fetchPosts();
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-200 to-gray-50">
@@ -38,7 +51,6 @@ export default function Home() {
         </div>
       </div>
 
-       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
@@ -48,7 +60,7 @@ export default function Home() {
             <h3 className="text-xl font-semibold mb-2">Share Your Ideas</h3>
             <p className="text-gray-600">Express your thoughts and connect with like-minded individuals in our community.</p>
           </div>
-          
+
           <div className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
               <div className="w-6 h-6 border-2 border-indigo-600 rounded-full"></div>
@@ -56,7 +68,7 @@ export default function Home() {
             <h3 className="text-xl font-semibold mb-2">Engage & Discuss</h3>
             <p className="text-gray-600">Join meaningful discussions and share your perspective with others.</p>
           </div>
-          
+
           <div className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
               <div className="w-6 h-6 border-2 border-indigo-600 rounded-full"></div>
@@ -67,7 +79,6 @@ export default function Home() {
         </div>
       </div>
 
-       
       {posts && posts.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
           <div className="flex items-center justify-between mb-8">
@@ -79,11 +90,11 @@ export default function Home() {
               View all posts →
             </Link>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {posts.map((post) => (
-              <Link 
-                key={post._id} 
+              <Link
+                key={post._id}
                 to={`/post/${post.slug}`}
                 className="transform hover:-translate-y-1 transition-transform duration-200"
               >
@@ -94,7 +105,6 @@ export default function Home() {
         </div>
       )}
 
-       
       <div className="bg-indigo-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
           <div className="text-center">

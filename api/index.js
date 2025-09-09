@@ -1,4 +1,4 @@
-import express from 'express';
+// import express from 'express';
 import dotenv from 'dotenv';
 import connectToMongoDB from './db/index.js';
 import userRouter from './routes/user.routes.js';
@@ -15,11 +15,27 @@ const __dirname = path.resolve();
 
 const app = express();
 
+// ✅ Step C — Backend CORS: allow production + Vercel previews
+const allowedOrigins = [
+  'https://thought-flow-x8ch.vercel.app', // Production domain
+  /\.vercel\.app$/                        // Any Vercel preview deployment
+];
 
-    app.use(cors({
-      origin: 'https://thought-flow-x8ch.vercel.app', // Vercel frontend URL
-      credentials: true
-    }));
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // Allow Postman / curl / server-to-server
+    const allowed = allowedOrigins.some(o =>
+      (o instanceof RegExp ? o.test(origin) : o === origin)
+    );
+    if (allowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed for origin ' + origin));
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
