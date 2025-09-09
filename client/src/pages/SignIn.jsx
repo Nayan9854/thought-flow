@@ -28,8 +28,9 @@ function SignIn() {
     setLocalErrorMessage(null);
     dispatch(loginStart());
 
+    const apiUrl = import.meta.env.VITE_API_URL;
     axios
-      .post('/api/v1/user/signin', formData, {
+      .post(`${apiUrl}/api/v1/user/signin`, formData, {
         headers: { 'Content-Type': 'application/json' },
       })
       .then((res) => {
