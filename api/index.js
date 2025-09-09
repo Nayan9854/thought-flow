@@ -15,7 +15,11 @@ const __dirname = path.resolve();
 
 const app = express();
 
-app.use(cors());
+
+    app.use(cors({
+      origin: 'https://thought-flow-x8ch.vercel.app', // Vercel frontend URL
+      credentials: true
+    }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
